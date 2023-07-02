@@ -1,11 +1,12 @@
 import express, { Request, Response } from 'express'
 import axios, { AxiosResponse } from 'axios';
 
+// backend service internal host
 const backend = "hello-world-backend:8080"
 const port = process.env.PORT || 8080
 const app = express();
 
-// getting data from backend
+// getting data from backend service
 const getData = async () => {
     let result: AxiosResponse = await axios.get(`http://${backend}/api/data`);
     let data = result.data;
