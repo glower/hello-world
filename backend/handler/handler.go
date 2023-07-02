@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-const message = "Hello, World 4!"
+const message = "Hello, World 5!"
 
 // ResponseData represents the structure of the response data
 type ResponseData struct {
