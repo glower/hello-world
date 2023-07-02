@@ -14,6 +14,10 @@ on:
     branches: [main]
     paths: ['backend/**']
 
+defaults:
+  run:
+    working-directory: ./backend  
+  
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: docker.io
@@ -46,11 +50,11 @@ jobs:
             type=semver,pattern=v{{version}}
             type=sha,prefix=,suffix=,format=short
 
-      - name: Build and push Docker image for backend
+      - name: Build and push backend docker image
         uses: docker/build-push-action@v4.0.0
         with:
           context: ./backend
-          file: ./backend/Dockerfile
+          file: backend/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
