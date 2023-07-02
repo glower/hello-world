@@ -24,6 +24,10 @@ backend-run:
 	cd ${BACKEND} && \
 	go run main.go
 
+.PHONY: frontend-test
+frontend-test:
+	cd ${FRONTEND} && npm ci && npm run build --if-present && npm test
+
 .PHONY: frontend-run
 run-frontend:
 	cd ${FRONTEND} && \
