@@ -13,6 +13,7 @@ const getData = async () => {
     return data;
 };
 
+// ping for testing
 app.get('/ping', (_req: Request, res: Response) => {
     return res.send('pong 🏓')
 })
