@@ -24,12 +24,12 @@ backend-run:
 	cd ${BACKEND} && \
 	go run main.go
 
-.PHONY: run-frontend
+.PHONY: frontend-run
 run-frontend:
 	cd ${FRONTEND} && \
 	node server.js
 
-.PHONY: build-frontend
+.PHONY: frontend-docker-build
 build-frontend:
 	cd ${FRONTEND} && \
 	docker buildx build --platform linux/amd64 -t welmoki/hello-world-frontend . && \
@@ -39,7 +39,7 @@ build-frontend:
 	kubectl apply -f service.yaml && \
 	kubectl get pods && kubectl get services
 
-.PHONY: backend-build
+.PHONY: backend-docker-build
 backend-build:
 	cd ${BACKEND} && \
 	docker buildx build --platform linux/amd64 -t welmoki/hello-world-backend .
