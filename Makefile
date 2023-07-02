@@ -40,7 +40,7 @@ build-frontend:
 	kubectl get pods && kubectl get services
 
 .PHONY: backend-docker-build
-backend-build:
+ backend-docker-build:
 	cd ${BACKEND} && \
 	docker buildx build --platform linux/amd64 -t welmoki/hello-world-backend .
 	docker push welmoki/hello-world-backend
