@@ -22,7 +22,7 @@ env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: docker.io
   # docker push welmoki/hello-world-backend:tagname
-  IMAGE_NAME: welmoki/hello-world-backend-backend
+  IMAGE_NAME: welmoki/hello-world-backend
   SHA: ${{ github.event.pull_request.head.sha || github.event.after }}
 
 jobs:
