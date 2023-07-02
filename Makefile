@@ -39,11 +39,14 @@ build-frontend:
 	kubectl apply -f service.yaml && \
 	kubectl get pods && kubectl get services
 
-.PHONY: build-backend
-build-backend:
+.PHONY: backend-build
+backend-build:
 	cd ${BACKEND} && \
 	docker buildx build --platform linux/amd64 -t welmoki/hello-world-backend .
-	docker push welmoki/hello-world-backend && \
+	docker push welmoki/hello-world-backend
+
+.PHONY: backend-publish
+backend-publish:
 	cd ${BACKEND}/k8s && \
 	kubectl apply -f deployment.yaml && \
 	kubectl apply -f service.yaml && \
