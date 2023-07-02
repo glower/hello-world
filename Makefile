@@ -3,14 +3,24 @@ FRONTEND := ${BASEDIR}/frontend
 BACKEND  := ${BASEDIR}/backend
 STATIC   := ${BASEDIR}/static
 
-.PHONY: test-backend
+.PHONY: backend-mod-verify
 test-backend:
-	cd ${BACKEND} && \
-	go vet ./...  && \
-	go test ./...
+	cd ${BACKEND} && go mod verify
 
-.PHONY: run-backend
-run-backend:
+.PHONY: backend-vet
+backend-vet:
+	cd ${BACKEND} && go vet ./...
+
+.PHONY: backend-test
+backend-test:
+	cd ${BACKEND} && go test -race ./...
+
+.PHONY: backend-build
+backend-build:
+	cd ${BACKEND} && go build -v ./...
+
+.PHONY: backend-run
+backend-run:
 	cd ${BACKEND} && \
 	go run main.go
 
