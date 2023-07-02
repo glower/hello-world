@@ -11,6 +11,7 @@ type ResponseData struct {
 	Message string `json:"message"`
 }
 
+// GetDataHandler returns a "Hello World" message.
 func GetDataHandler(w http.ResponseWriter, r *http.Request) {
 	// log request
 	log.Printf("GET %q\n", r.URL.Path)
