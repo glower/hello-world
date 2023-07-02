@@ -6,6 +6,8 @@ import (
 	"net/http"
 )
 
+const message = "Hello, World 2!"
+
 // ResponseData represents the structure of the response data
 type ResponseData struct {
 	Message string `json:"message"`
@@ -18,7 +20,7 @@ func GetDataHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Create a response data object
 	response := ResponseData{
-		Message: "Hello, World!",
+		Message: message,
 	}
 
 	// Set the Content-Type header to application/json

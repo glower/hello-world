@@ -21,7 +21,7 @@ func TestGetDataHandler(t *testing.T) {
 		t.Errorf("expected error to be nil got %v", err)
 	}
 
-	expected := `{"message":"Hello, World!"}`
+	expected := fmt.Sprintf(`{"message":"%s"}`, message)
 	if strings.TrimSpace(string(data)) != expected {
 		t.Errorf("expected %q got %q", expected, string(data))
 	}
