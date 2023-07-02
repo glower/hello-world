@@ -1,0 +1,61 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# GitHub recommends pinning actions to a commit SHA.
+# To get a newer version, you will need to update the SHA.
+# You can also reference a tag or branch, but the action may change without warning.
+
+name: Publish backend docker image
+
+on:
+  push:
+    branches: [main]
+    paths: ['backend/**']
+
+defaults:
+  run:
+    working-directory: ./backend  
+  
+env:
+  # Use docker.io for Docker Hub if empty
+  REGISTRY: docker.io
+  # docker push welmoki/hello-world-backend:tagname
+  IMAGE_NAME: welmoki/hello-world-backend
+  SHA: ${{ github.event.pull_request.head.sha || github.event.after }}
+
+jobs:
+  push_to_registry:
+    name: Push backend docker image to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+      
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v4.4.0
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          labels: |
+            org.opencontainers.image.revision=${{ env.SHA }}
+          tags: |
+            type=edge,branch=$repo.default_branch
+            type=semver,pattern=v{{version}}
+            type=sha,prefix=,suffix=,format=short
+
+      - name: Build and push backend docker image
+        uses: docker/build-push-action@v4.0.0
+        with:
+          context: ./backend
+          file: backend/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

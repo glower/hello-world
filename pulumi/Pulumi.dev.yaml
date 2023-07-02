@@ -1,0 +1,10 @@
+config:
+  aws:region: "eu-west-1"
+  aws:skipCredentialsValidation: "true"
+  aws:skipMetadataApiCheck: "true"
+  aws:skipRequestingAccountId: "true"
+  hello.world:desiredClusterSize: "2"
+  hello.world:eksNodeInstanceType: "t3.small"
+  hello.world:maxClusterSize: "2"
+  hello.world:minClusterSize: "2"
+  hello.world:vpcNetworkCidr: "10.0.0.0/16"

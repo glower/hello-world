@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world-backend
+  labels:
+    app: hello-world-backend
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: hello-world-backend
+  template:
+    metadata:
+      labels:
+        app: hello-world-backend
+    spec:
+      containers:
+        - name: hello-world-backend
+          image: welmoki/hello-world-backend
+          imagePullPolicy: Always
+          ports:
+            - name: web
+              containerPort: 8080

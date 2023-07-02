@@ -1,0 +1,30 @@
+name: Run backend tests
+
+on:
+  pull_request:
+    branches: [main]
+    paths: ['backend/**']
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Check out the repo
+      uses: actions/checkout@v3
+
+    - name: Set up Golang
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.19
+
+    - name: Verify dependencies
+      run: make backend-mod-verify
+
+    - name: Run test build
+      run: make backend-build
+
+    - name: Run go vet
+      run: make backend-vet
+
+    - name: Run backend tests
+      run: make backend-test
