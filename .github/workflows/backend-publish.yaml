@@ -83,6 +83,9 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1        
       - name: Update kube config
         run: aws eks update-kubeconfig --name ${{ env.AWS_CLUSTER_NAME }}
+      - run: |
+          export SHORT_SHA=`echo ${{ env.SHA }} | cut -c1-7`
+          envsubst < k8s/deployment.yaml.in > k8s/deployment.yaml
       - name: Deploy backend to EKS
         run: |
           kubectl apply -f k8s/deployment.yaml
