@@ -29,10 +29,6 @@ jobs:
 
       - name: Check out the repo
         uses: actions/checkout@v3
-
-      - name: Add SHORT_SHA env property with commit short sha
-        run: echo "SHORT_SHA=`echo ${SHA} | cut -c1-8`" >> $GITHUB_ENV
-
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v4.4.0
@@ -77,6 +73,7 @@ jobs:
       - name: Update kube config
         run: aws eks update-kubeconfig --name ${{ env.AWS_CLUSTER_NAME }}
       - run: |
+          export SHORT_SHA=`echo ${{ env.SHA }} | cut -c1-8`
           envsubst < k8s/deployment.yaml.in > k8s/deployment.yaml
       - name: Deploy frontend to EKS
         run: |
