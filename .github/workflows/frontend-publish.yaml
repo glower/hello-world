@@ -70,7 +70,7 @@ jobs:
       - name: Update kube config
         run: aws eks update-kubeconfig --name ${{ env.AWS_CLUSTER_NAME }}
       - run: |
-          envsubst < k8s/deployment.yml.in > k8s/deployment.yml
+          envsubst < k8s/deployment.yaml.in > k8s/deployment.yaml
       - name: Deploy frontend to EKS
         run: |
           kubectl apply -f k8s/deployment.yaml
