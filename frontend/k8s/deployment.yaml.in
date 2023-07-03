@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: hello-world-frontend
-          image: welmoki/hello-world-frontend:${SHA}
+          image: welmoki/hello-world-frontend:${SHORT_SHA}
           imagePullPolicy: Always
           ports:
             - name: web
