@@ -55,14 +55,14 @@ jobs:
       - name: Build and push backend docker image
         uses: docker/build-push-action@v4.0.0
         with:
-          context: ./backend
-          file: backend/Dockerfile
+          context: .
+          # file: backend/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
   deploy:
-    name: Deploy
+    name: Deploy backend
     needs: [ test, push_to_registry ]
     runs-on: ubuntu-latest
     steps:
@@ -84,5 +84,5 @@ jobs:
         run: aws eks update-kubeconfig --name ${{ env.AWS_CLUSTER_NAME }}
       - name: Deploy to EKS
         run: |
-          kubectl apply -f backend/k8s/deployment.yaml
-          kubectl apply -f backend/k8s/service.yaml
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
