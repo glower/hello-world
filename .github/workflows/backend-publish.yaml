@@ -47,9 +47,12 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           labels: |
-            org.opencontainers.image.revision=latest
             org.opencontainers.image.revision=${{ env.SHA }}
-      - name: Check out the repo # do we need this?
+          tags: |
+            type=edge,branch=$repo.default_branch
+            type=semver,pattern=v{{version}}
+            type=sha,prefix=,suffix=,format=short   
+      - name: Check out the repo
         uses: actions/checkout@v3
       - name: Build and push backend docker image
         uses: docker/build-push-action@v4.0.0
