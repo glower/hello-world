@@ -28,7 +28,9 @@ jobs:
       with:
         go-version: '1.19'
     - name: Run backend tests
-      run: go test ./...
+      run: |
+        ls -la 
+        go test ./...
 
   push_to_registry:
     name: Build backend
@@ -47,16 +49,13 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           labels: |
+            org.opencontainers.image.revision=latest
             org.opencontainers.image.revision=${{ env.SHA }}
-          tags: |
-            type=edge,branch=$repo.default_branch
-            type=semver,pattern=v{{version}}
-            type=sha,prefix=,suffix=,format=short
       - name: Build and push backend docker image
         uses: docker/build-push-action@v4.0.0
         with:
           context: .
-          # file: backend/Dockerfile
+          file: backend/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
