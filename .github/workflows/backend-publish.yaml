@@ -28,7 +28,7 @@ jobs:
       with:
         go-version: '1.19'
     - name: Run backend tests
-      run: ls -la && go test ./...
+      run: go test ./...
 
   push_to_registry:
     name: Build backend
