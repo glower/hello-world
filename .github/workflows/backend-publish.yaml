@@ -23,13 +23,12 @@ jobs:
     steps:
     - name: Check out the repo
       uses: actions/checkout@v3
-
     - name: Set up Golang
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v4
       with:
-        go-version: 1.19
+        go-version: '1.19'
     - name: Run backend tests
-      run: make backend-test
+      run: ls -la && go test ./...
 
   push_to_registry:
     name: Build backend
