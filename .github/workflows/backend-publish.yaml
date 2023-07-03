@@ -1,0 +1,95 @@
+name: CI/CD for backend
+
+on:
+  push:
+    branches: [main]
+    paths: ['backend/**']
+
+defaults:
+  run:
+    working-directory: backend  
+  
+env:
+  AWS_REGION: eu-west-1
+  AWS_CLUSTER_NAME: eks-cluster-eksCluster-1caa454
+  REGISTRY: docker.io
+  IMAGE_NAME: welmoki/hello-world-backend
+  SHA: ${{ github.event.pull_request.head.sha || github.event.after }}
+
+jobs:
+  test:
+    name: Run backend tests
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out the repo
+      uses: actions/checkout@v3
+    - name: Set up Golang
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.19'
+    - name: Run backend tests
+      run: go test ./...
+
+  push_to_registry:
+    name: Build backend
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v4.4.0
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          labels: |
+            org.opencontainers.image.revision=${{ env.SHA }}
+          tags: |
+            type=edge,branch=$repo.default_branch
+            type=semver,pattern=v{{version}}
+            type=sha,prefix=,suffix=,format=short   
+      - name: Check out the repo
+        uses: actions/checkout@v3
+      - name: Build and push backend docker image
+        uses: docker/build-push-action@v4.0.0
+        with:
+          context: backend/.
+          file: backend/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  deploy:
+    name: Deploy backend
+    needs: [ test, push_to_registry ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v2.0
+        with:
+          version: 'v1.24.0'
+        id: install
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1        
+      - name: Update kube config
+        run: aws eks update-kubeconfig --name ${{ env.AWS_CLUSTER_NAME }}
+      - run: |
+          export SHORT_SHA=`echo ${{ env.SHA }} | cut -c1-7`
+          envsubst < k8s/deployment.yaml.in > k8s/deployment.yaml
+      - name: Deploy backend to EKS
+        run: |
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml

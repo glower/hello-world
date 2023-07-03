@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world-frontend
+  labels:
+    app: hello-world-frontend
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0 
+  selector:
+    matchLabels:
+      app: hello-world-frontend
+  template:
+    metadata:
+      labels:
+        app: hello-world-frontend
+    spec:
+      containers:
+        - name: hello-world-frontend
+          image: welmoki/hello-world-frontend:${SHORT_SHA}
+          imagePullPolicy: Always
+          ports:
+            - name: web
+              containerPort: 8080
+          env:
+          - name: PORT
+            value: "8080"
