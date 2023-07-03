@@ -27,6 +27,9 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
       - name: Add SHORT_SHA env property with commit short sha
         run: echo "SHORT_SHA=`echo ${SHA} | cut -c1-8`" >> $GITHUB_ENV
 
@@ -41,8 +44,6 @@ jobs:
             type=edge,branch=$repo.default_branch
             type=semver,pattern=v{{version}}
             type=sha,prefix=,suffix=,format=short
-      - name: Check out the repo
-        uses: actions/checkout@v3
       - name: Build and push frontend docker image
         uses: docker/build-push-action@v4.0.0
         with:
