@@ -73,7 +73,7 @@ jobs:
       - name: Update kube config
         run: aws eks update-kubeconfig --name ${{ env.AWS_CLUSTER_NAME }}
       - run: |
-          export SHORT_SHA=`echo ${{ env.SHA }} | cut -c1-8`
+          export SHORT_SHA=`echo ${{ env.SHA }} | cut -c1-7`
           envsubst < k8s/deployment.yaml.in > k8s/deployment.yaml
       - name: Deploy frontend to EKS
         run: |
