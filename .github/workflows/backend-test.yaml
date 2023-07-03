@@ -6,7 +6,7 @@ on:
     paths: ['backend/**']
 
 jobs:
-  build:
+  test-backend:
     runs-on: ubuntu-22.04
     steps:
     - name: Check out the repo
