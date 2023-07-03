@@ -1,27 +1,26 @@
-name: Publish frontend docker image
+name: CI/CD for frontend
 
 on:
   push:
     branches: [main]
-    paths: ['frontend/**']
+    # paths: ['frontend/**']
 
 defaults:
   run:
-    working-directory: ./frontend  
+    working-directory: frontend  
   
 env:
+  AWS_REGION: eu-west-1
+  AWS_CLUSTER_NAME: eks-cluster-eksCluster-1caa454
   REGISTRY: docker.io
   IMAGE_NAME: welmoki/hello-world-frontend
   SHA: ${{ github.event.pull_request.head.sha || github.event.after }}
 
 jobs:
   push_to_registry:
-    name: Push frontend docker image to Docker Hub
+    name: Build frontend
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v3
-      
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
@@ -34,17 +33,43 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           labels: |
+            org.opencontainers.image.revision=latest
             org.opencontainers.image.revision=${{ env.SHA }}
-          tags: |
-            type=edge,branch=$repo.default_branch
-            type=semver,pattern=v{{version}}
-            type=sha,prefix=,suffix=,format=short
-
+      - name: Check out the repo # do we need this?
+        uses: actions/checkout@v3
       - name: Build and push frontend docker image
         uses: docker/build-push-action@v4.0.0
         with:
-          context: ./frontend
+          context: frontend/.
           file: frontend/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  deploy:
+    name: Deploy frontend
+    needs: [ push_to_registry ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v2.0
+        with:
+          version: 'v1.24.0'
+        id: install
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1        
+      - name: Update kube config
+        run: aws eks update-kubeconfig --name ${{ env.AWS_CLUSTER_NAME }}
+      - name: Deploy frontend to EKS
+        run: |
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml

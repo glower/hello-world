@@ -3,7 +3,7 @@ name: CI/CD for backend
 on:
   push:
     branches: [main]
-    # paths: ['backend/**']
+    paths: ['backend/**']
 
 defaults:
   run:
@@ -17,24 +17,22 @@ env:
   SHA: ${{ github.event.pull_request.head.sha || github.event.after }}
 
 jobs:
-  # test:
-  #   name: Run backend tests
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - name: Check out the repo
-  #     uses: actions/checkout@v3
-  #   - name: Set up Golang
-  #     uses: actions/setup-go@v4
-  #     with:
-  #       go-version: '1.19'
-  #   - name: Run backend tests
-  #     run: |
-  #       ls -la 
-  #       go test ./...
+  test:
+    name: Run backend tests
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out the repo
+      uses: actions/checkout@v3
+    - name: Set up Golang
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.19'
+    - name: Run backend tests
+      run: go test ./...
 
   push_to_registry:
     name: Build backend
-    # needs: test
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Log in to Docker Hub
@@ -64,15 +62,15 @@ jobs:
 
   deploy:
     name: Deploy backend
-    needs: [ push_to_registry ]
+    needs: [ test, push_to_registry ]
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the repo # do we need this?
+      - name: Check out the repo
         uses: actions/checkout@v3
       - name: Install kubectl
         uses: azure/setup-kubectl@v2.0
         with:
-          version: 'v1.24.0' # default is latest stable
+          version: 'v1.24.0'
         id: install
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -85,7 +83,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1        
       - name: Update kube config
         run: aws eks update-kubeconfig --name ${{ env.AWS_CLUSTER_NAME }}
-      - name: Deploy to EKS
+      - name: Deploy backend to EKS
         run: |
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
