@@ -1,6 +1,6 @@
 # Pulumi
 
-Run this locally:
+Run this `pulumi` commands locally, make sure `pulumi` and `aws` are configured correctly first.
 
 ```
 pulumi stack init dev
