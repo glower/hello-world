@@ -1,24 +1,24 @@
 import express, { Request, Response } from 'express'
 import axios, { AxiosResponse } from 'axios';
 
-// backend service internal host
+// backend service internal host.
 const backend = "hello-world-backend:8080"
 const port = process.env.PORT || 8080
 const app = express();
 
-// getting data from backend service
+// getting data from backend service.
 const getData = async () => {
     let result: AxiosResponse = await axios.get(`http://${backend}/api/data`);
     let data = result.data;
     return data;
 };
 
-// ping for testing
+// ping for testing.
 app.get('/ping', (_req: Request, res: Response) => {
     return res.send('pong 🏓')
 })
 
-// Serve the HTML page
+// Serve the HTML page.
 app.get('/', async (req: Request, res: Response) => {
     try {
       const data = await getData();
@@ -41,7 +41,7 @@ app.get('/', async (req: Request, res: Response) => {
     }
 });
 
-// Start the server
+// Start the server.
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
