@@ -11,7 +11,7 @@ defaults:
   
 env:
   AWS_REGION: eu-west-1
-  AWS_CLUSTER_NAME: eks-cluster-eksCluster-1caa454
+  AWS_CLUSTER_NAME: eks-cluster-eksCluster-914d9a2
   REGISTRY: docker.io
   IMAGE_NAME: welmoki/hello-world-backend
   SHA: ${{ github.event.pull_request.head.sha || github.event.after }}
