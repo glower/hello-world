@@ -1,6 +1,6 @@
 module github.com/glower/helloworld/backend
 
-go 1.19
+go 1.23
 
 require github.com/stretchr/testify v1.8.4
 

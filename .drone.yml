@@ -19,26 +19,26 @@ steps:
       - git clone --branch ${DRONE_BRANCH} ${DRONE_REPO_LINK} .
   
   - name: setup-golang
-    image: golang:1.19
+    image: golang:1.23
     commands:
       - go version
 
   - name: verify-dependencies
-    image: golang:1.19
+    image: golang:1.23
     commands:
       - make backend-mod-verify
 
   - name: build
-    image: golang:1.19
+    image: golang:1.23
     commands:
       - make backend-build
 
   - name: go-vet
-    image: golang:1.19
+    image: golang:1.23
     commands:
       - make backend-vet
 
   - name: test
-    image: golang:1.19
+    image: golang:1.23
     commands:
       - make backend-test
