@@ -24,6 +24,17 @@ provider "google" {
   region  = var.gcp_region
 }
 
+resource "google_compute_address" "unused_static_ip" {
+  name = "expensive-unused-static-ip"
+}
+
+resource "google_compute_disk" "unattached_large_disk" {
+  name = "large-unattached-premium-disk"
+  type = "pd-ssd"
+  size = 500
+  zone = "us-central1-a"
+}
+
 # VPC Network
 module "vpc" {
   source  = "terraform-google-modules/network/google"
@@ -41,7 +52,6 @@ module "vpc" {
   ]
 }
 
-# GKE Cluster
 module "gke" {
   source  = "terraform-google-modules/kubernetes-engine/google"
   version = "~> 30.0"
@@ -53,15 +63,29 @@ module "gke" {
   subnetwork                 = module.vpc.subnets_names[0]
   ip_range_pods              = "gke-pods-range"
   ip_range_services          = "gke-services-range"
-  remove_default_node_pool   = true
-  initial_node_count         = 1
+  remove_default_node_pool   = false
+  release_channel            = "RAPID"
+
+  logging_service    = "logging.googleapis.com/kubernetes"
+  monitoring_service = "monitoring.googleapis.com/kubernetes"
+
   node_pools = [
     {
-      name               = "default-node-pool"
-      machine_type       = var.gke_machine_type
-      min_count          = var.min_cluster_size
-      max_count          = var.max_cluster_size
-      initial_node_count = var.desired_cluster_size
+      name               = "primary-node-pool"
+      machine_type       = "n2-standard-16"
+      min_count          = 3
+      max_count          = 10
+      disk_type          = "pd-ssd"
+      disk_size_gb       = 250
+      initial_node_count = 3
+    },
+    {
+      name               = "spot-pool-for-batch"
+      machine_type       = "e2-standard-8"
+      spot               = true
+      min_count          = 0
+      max_count          = 20
+      initial_node_count = 0
     },
   ]
 }
